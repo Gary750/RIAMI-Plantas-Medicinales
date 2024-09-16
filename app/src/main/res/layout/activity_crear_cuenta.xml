@@ -66,6 +66,8 @@
         android:layout_marginStart="50dp"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="50dp"
+        android:layout_marginBottom="13dp"
+        app:layout_constraintBottom_toTopOf="@+id/textView8"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -92,7 +94,6 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="30dp"
         android:layout_marginEnd="192dp"
-        android:layout_marginBottom="15dp"
         android:text="Hola! Es un gusto conocerte"
         android:textColor="#6E6E6E"
         android:textSize="15sp"
@@ -141,10 +142,12 @@
         android:layout_marginStart="29dp"
         android:layout_marginTop="5dp"
         android:layout_marginEnd="30dp"
+        android:layout_marginBottom="9dp"
         android:hint="Confirmar Contraseña"
         android:inputType="textPassword"
         android:textColor="@color/black"
         android:textColorHint="#6A6A6A"
+        app:layout_constraintBottom_toTopOf="@+id/createAccountButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/confirmPasswordTextView" />
@@ -162,8 +165,10 @@
         android:textColor="@color/white"
         app:layout_constraintBottom_toTopOf="@+id/googleAccountButton"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/confirmPasswordEditText" />
+        app:layout_constraintTop_toBottomOf="@+id/confirmPasswordEditText"
+        app:layout_constraintVertical_bias="0.072" />
 
     <TextView
         android:id="@+id/confirmPasswordTextView"
