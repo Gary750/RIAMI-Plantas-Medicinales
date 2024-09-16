@@ -85,10 +85,21 @@
         android:layout_marginBottom="20dp"/>
 
     <Button
+        android:id="@+id/continue_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/or_label"
+        android:text="Continuar"
+        android:backgroundTint="#689F38"
+        android:textColor="@android:color/white"
+        android:layout_marginTop="20dp"
+        android:layout_margin="16dp"/>
+
+    <Button
         android:id="@+id/google_login_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/or_label"
+        android:layout_below="@id/continue_button"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="20dp"
         android:text="Iniciar sesión con Google"
@@ -96,21 +107,10 @@
         android:backgroundTint="#689F38"
         android:textColor="@android:color/white" />
 
-    <Button
-        android:id="@+id/continue_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/google_login_button"
-        android:text="Continuar"
-        android:backgroundTint="#689F38"
-        android:textColor="@android:color/white"
-        android:layout_marginTop="20dp"
-        android:layout_margin="16dp"/>
-
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/continue_button"
+        android:layout_below="@id/google_login_button"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="20dp"
         android:orientation="horizontal">
