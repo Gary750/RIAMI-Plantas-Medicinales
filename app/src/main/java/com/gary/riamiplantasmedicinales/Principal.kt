@@ -181,4 +181,5 @@ class Principal : AppCompatActivity() {
             classifyImage(scaleImage)
         }
     }
+
 }
