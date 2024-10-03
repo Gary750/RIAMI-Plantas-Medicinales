@@ -168,6 +168,7 @@ class Principal : AppCompatActivity() {
             e.printStackTrace()
         }
 
+
     }
     //Crear Funcion que devuelve la planta clasificada
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
