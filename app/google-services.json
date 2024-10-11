@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "348090874636",
+    "firebase_url": "https://riami-plantas-medicinales-default-rtdb.firebaseio.com",
+    "project_id": "riami-plantas-medicinales",
+    "storage_bucket": "riami-plantas-medicinales.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:348090874636:android:b73bdc97ca50a737756729",
+        "android_client_info": {
+          "package_name": "com.gary.riamiplantasmedicinales"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAPcqNMz8oDwuTD2VKCAf37jTZ2qeHPJ6g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
