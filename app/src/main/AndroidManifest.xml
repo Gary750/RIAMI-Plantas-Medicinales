@@ -34,7 +34,7 @@
             android:name=".CrearCuenta"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".Login"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
