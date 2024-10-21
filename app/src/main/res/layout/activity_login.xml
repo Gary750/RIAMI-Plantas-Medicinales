@@ -21,11 +21,11 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="50dp"/>
+        android:layout_marginTop="50dp" />
 
     <!-- Etiqueta Usuario -->
     <TextView
-        android:id="@+id/email_label"
+        android:id="@+id/username_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Usuario"
@@ -39,20 +39,20 @@
 
     <!-- Input Usuario -->
     <EditText
-        android:id="@+id/email"
+        android:id="@+id/username"
         android:layout_width="0dp"
         android:layout_height="50dp"
         android:hint="Usuario"
-        android:inputType="textEmailAddress"
+        android:inputType="text"
         android:textColor="@color/black"
         android:textColorHint="#353535"
         android:padding="10dp"
-        app:layout_constraintTop_toBottomOf="@id/email_label"
+        app:layout_constraintTop_toBottomOf="@id/username_label"
         android:layout_marginTop="5dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"/>
+        android:layout_marginEnd="16dp" />
 
     <!-- Etiqueta Contraseña -->
     <TextView
@@ -63,10 +63,10 @@
         android:textColor="@android:color/holo_red_dark"
         android:textSize="14sp"
         android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/email"
+        app:layout_constraintTop_toBottomOf="@id/username"
         android:layout_marginTop="20dp"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginStart="16dp"/>
+        android:layout_marginStart="16dp" />
 
     <!-- Input Contraseña -->
     <EditText
@@ -83,7 +83,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"/>
+        android:layout_marginEnd="16dp" />
 
     <!-- Botón Continuar -->
     <Button
@@ -98,7 +98,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"/>
+        android:layout_marginEnd="16dp" />
 
     <!-- Texto "ó" -->
     <TextView
