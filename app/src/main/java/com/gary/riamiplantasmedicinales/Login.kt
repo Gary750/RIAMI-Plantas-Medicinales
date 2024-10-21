@@ -11,11 +11,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class Login : AppCompatActivity() {
 
-    // Inicializar FirebaseAuth para manejar la autenticación de usuarios
+    // Inicializar FirebaseAuth y Firestore para manejar la autenticación y la base de datos
     private lateinit var auth: FirebaseAuth
+    private val db = FirebaseFirestore.getInstance() // Instancia de Firestore
 
     // Método onCreate que se llama al crear la actividad
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,7 +38,7 @@ class Login : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
 
         // Crear las variables de Kotlin que relacionan la parte lógica con el XML
-        val usuario: EditText = findViewById(R.id.email) // EditText para el correo electrónico
+        val usuario: EditText = findViewById(R.id.username) // EditText para el nombre de usuario
         val password: EditText = findViewById(R.id.password) // EditText para la contraseña
         val button: Button = findViewById(R.id.continue_button) // Botón para continuar
         val registerLink: TextView = findViewById(R.id.register_link) // Enlace para crear una cuenta
@@ -50,30 +52,47 @@ class Login : AppCompatActivity() {
             // Validar entradas vacías
             if (edUsuario.isEmpty() || edPassword.isEmpty()) {
                 // Mostrar un mensaje si alguno de los campos está vacío
-                Toast.makeText(this, "Por favor, ingresa el correo y la contraseña", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Por favor, ingresa el nombre de usuario y la contraseña", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener // Salir si hay campos vacíos
             }
 
-            // Autenticar al usuario con Firebase
-            auth.signInWithEmailAndPassword(edUsuario, edPassword)
-                .addOnCompleteListener(this) { task -> // Añadir un listener para la tarea de autenticación
-                    if (task.isSuccessful) {
-                        // Usuario autenticado correctamente
-                        Toast.makeText(this, "Usuario y contraseña correctos", Toast.LENGTH_SHORT).show()
-                        // Abrir la segunda pantalla (actividad principal)
-                        val segundaPantalla = Intent(this, Principal::class.java)
-                        startActivity(segundaPantalla) // Iniciar la actividad principal
-                        finish() // Opcionalmente, finalizar la actividad de login
+            // Buscar el usuario en Firestore usando el nombre de usuario
+            db.collection("users") // Asegúrate de que este sea el nombre correcto de tu colección
+                .whereEqualTo("username", edUsuario) // Buscar por el nombre de usuario
+                .get()
+                .addOnSuccessListener { documents ->
+                    if (documents.isEmpty) {
+                        // Usuario no encontrado
+                        Toast.makeText(this, "Usuario no encontrado", Toast.LENGTH_SHORT).show()
                     } else {
-                        // Mostrar un mensaje de error si algo falla en la autenticación
-                        task.exception?.let { exception ->
-                            // Si hay una excepción, mostrar su mensaje
-                            Toast.makeText(this, "Error: ${exception.localizedMessage}", Toast.LENGTH_SHORT).show()
-                        } ?: run {
-                            // Mostrar un mensaje de error desconocido si no hay excepción
-                            Toast.makeText(this, "Error desconocido", Toast.LENGTH_SHORT).show()
-                        }
+                        // Si se encuentra el usuario, obtener el correo electrónico
+                        val userDocument = documents.first()
+                        val userEmail = userDocument.getString("email") // Obtener el correo electrónico
+
+                        // Autenticar al usuario con Firebase
+                        auth.signInWithEmailAndPassword(userEmail ?: "", edPassword)
+                            .addOnCompleteListener(this) { task ->
+                                if (task.isSuccessful) {
+                                    // Usuario autenticado correctamente
+                                    Toast.makeText(this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show()
+                                    // Abrir la segunda pantalla (actividad principal)
+                                    val segundaPantalla = Intent(this, Principal::class.java)
+                                    startActivity(segundaPantalla) // Iniciar la actividad principal
+                                    finish() // Opcionalmente, finalizar la actividad de login
+                                } else {
+                                    // Mostrar un mensaje de error si algo falla en la autenticación
+                                    task.exception?.let { exception ->
+                                        Toast.makeText(this, "Error: ${exception.localizedMessage}", Toast.LENGTH_SHORT).show()
+                                    } ?: run {
+                                        Toast.makeText(this, "Error desconocido", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            }
                     }
+                }
+                .addOnFailureListener { e ->
+                    // Manejo de errores en la consulta
+                    Toast.makeText(this, "Error al buscar el usuario: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
                 }
         }
 
