@@ -128,7 +128,7 @@
         android:id="@+id/passwordEditText"
         android:layout_width="0dp"
         android:layout_height="50dp"
-        android:hint="Contraseña"
+        android:hint="Contraseña (Minimo 6 caracteres)"
         android:inputType="textPassword"
         android:textColor="@color/black"
         android:textColorHint="#6A6A6A"
