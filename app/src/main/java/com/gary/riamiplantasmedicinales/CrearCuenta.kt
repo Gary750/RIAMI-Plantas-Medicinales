@@ -12,64 +12,72 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore // Importar Firestore
 
 class CrearCuenta : AppCompatActivity() {
 
-    // Método privado para mostrar una alerta de error
+    private val db = FirebaseFirestore.getInstance() // Instancia de Firestore
+
     private fun showAlert(message: String) {
-        val builder = AlertDialog.Builder(this) // Crear un constructor de AlertDialog
-        builder.setTitle("Error") // Establecer el título del diálogo
-        builder.setMessage(message) // Establecer el mensaje del diálogo
-        builder.setPositiveButton("Aceptar", null) // Botón para aceptar, sin acción adicional
-        val dialog: AlertDialog = builder.create() // Crear el diálogo
-        dialog.show() // Mostrar el diálogo
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Error")
+        builder.setMessage(message)
+        builder.setPositiveButton("Aceptar", null)
+        val dialog: AlertDialog = builder.create()
+        dialog.show()
     }
 
-    // Método onCreate que se llama al crear la actividad
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState) // Llamar al método de la superclase
-        enableEdgeToEdge() // Activar el diseño de borde a borde
-        setContentView(R.layout.activity_crear_cuenta) // Establecer el XML que se usará para esta actividad
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setContentView(R.layout.activity_crear_cuenta)
 
-        // Ajustar márgenes para la barra del sistema (status bar, navigation bar, etc.)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            // Obtener los márgenes de las barras del sistema
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            // Establecer el padding del layout principal
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets // Retornar insets para que se apliquen
+            insets
         }
 
-        // Obtener referencias a los elementos en el layout
-        val regEmail: EditText = findViewById(R.id.emailEditText) // EditText para el correo electrónico
-        val regPassword: EditText = findViewById(R.id.passwordEditText) // EditText para la contraseña
-        val createAccount: Button = findViewById(R.id.createAccountButton) // Botón para crear la cuenta
+        val regUser: EditText = findViewById(R.id.userEditText)
+        val regEmail: EditText = findViewById(R.id.emailEditText)
+        val regPassword: EditText = findViewById(R.id.passwordEditText)
+        val createAccount: Button = findViewById(R.id.createAccountButton)
 
-        // Configurar el listener para el botón de crear cuenta
         createAccount.setOnClickListener {
-            // Verificar que ambos campos no estén vacíos
-            if (regEmail.text.isNotEmpty() && regPassword.text.isNotEmpty()) {
-                // Crear el usuario en Firebase con el correo y contraseña proporcionados
+            if (regEmail.text.isNotEmpty() && regPassword.text.isNotEmpty() && regUser.text.isNotEmpty()) {
                 FirebaseAuth.getInstance().createUserWithEmailAndPassword(
                     regEmail.text.toString(), regPassword.text.toString()
                 ).addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        // Usuario creado correctamente, mostrar un mensaje
-                        Toast.makeText(this, "Cuenta creada exitosamente", Toast.LENGTH_SHORT).show()
+                        // Usuario creado correctamente
+                        val userId = task.result.user?.uid // Obtener el ID del usuario
+                        val userMap = hashMapOf(
+                            "username" to regUser.text.toString(),
+                            "email" to regEmail.text.toString()
+                        )
 
-                        // Redirigir a la pantalla de inicio de sesión
-                        val principal = Intent(this, Login::class.java) // Crear un Intent para iniciar la actividad Login
-                        startActivity(principal) // Iniciar la actividad Login
-                        finish() // Finalizar la actividad actual para no volver a ella
+                        // Guardar el usuario en Firestore
+                        userId?.let {
+                            db.collection("users").document(it)
+                                .set(userMap)
+                                .addOnSuccessListener {
+                                    Toast.makeText(this, "Usuario registrado correctamente", Toast.LENGTH_SHORT).show()
+                                    // Redirigir a la pantalla de inicio de sesión
+                                    val principal = Intent(this, Login::class.java)
+                                    startActivity(principal)
+                                    finish()
+                                }
+                                .addOnFailureListener { e ->
+                                    showAlert("Error al registrar al usuario: ${e.localizedMessage}")
+                                    Log.e("Firestore", "Error registrando usuario", e)
+                                }
+                        }
                     } else {
-                        // Mostrar un mensaje de error si algo falla en la creación de la cuenta
                         showAlert("Error creando la cuenta: ${task.exception?.localizedMessage}")
-                        // Registrar el error en el log
                         Log.e("FirebaseAuth", "Error creando cuenta", task.exception)
                     }
                 }
             } else {
-                // Mostrar alerta si los campos están vacíos
                 showAlert("Por favor, rellena todos los campos")
             }
         }
