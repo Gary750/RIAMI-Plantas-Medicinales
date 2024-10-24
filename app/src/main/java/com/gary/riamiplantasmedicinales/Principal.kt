@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import android.media.ThumbnailUtils
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
@@ -19,15 +20,22 @@ import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
 import java.io.IOException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import com.gary.riamiplantasmedicinales.ml.DiseaseDetection
+import com.gary.riamiplantasmedicinales.ml.PlantDetection
+import com.google.firebase.firestore.FirebaseFirestore
+import java.util.Locale
+
 
 class Principal : AppCompatActivity() {
+
+    private val db = FirebaseFirestore.getInstance() //inicializar Firebase Firestore
     //variables de manera global
-    lateinit var result: TextView
-    lateinit var propiedades : TextView
-    lateinit var  imagen: ImageView
-    lateinit var btnPicture : Button
-    var  imageSize = 224
+    lateinit var CientificName: TextView
+    lateinit var Description: TextView
+    lateinit var Name: TextView
+    lateinit var propiedades: TextView
+    lateinit var imagen: ImageView
+    lateinit var btnPicture: Button
+    var imageSize = 224
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,21 +46,23 @@ class Principal : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-//relacionar las variables globales con los ids del xml
-        result = findViewById(R.id.result)
-        propiedades = findViewById(R.id.clasified)
+        //relacionar las variables globales con los ids del xml
+        Description = findViewById(R.id.Description)
+        CientificName = findViewById(R.id.name)
+        Name = findViewById(R.id.CName)
+        propiedades = findViewById(R.id.Propieties)
         imagen = findViewById(R.id.imageView)
         btnPicture = findViewById(R.id.button)
 
         //programar el boton
         btnPicture.setOnClickListener {
             //inicializar la camara si se tenemos permisos
-            if (checkSelfPermission(android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED){
+            if (checkSelfPermission(android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
                 val cammeraIntet = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-                startActivityForResult(cammeraIntet,1)
-            }else{
+                startActivityForResult(cammeraIntet, 1)
+            } else {
                 //si no tiene permisos
-                requestPermissions(arrayOf(android.Manifest.permission.CAMERA),100)
+                requestPermissions(arrayOf(android.Manifest.permission.CAMERA), 100)
             }
         }
 
@@ -61,11 +71,12 @@ class Principal : AppCompatActivity() {
     //Funcion que clasifica una imagen utlilizando machine learning
     private fun classifyImage(image: Bitmap) {
         try {
-            // Inicializa el modelo de detección de plantas
-            val model = DiseaseDetection.newInstance(applicationContext)
+            // Inicializa el modelo de detección de plantas //DiseaseDetection.newInstance(applicationContext)
+            val model = PlantDetection.newInstance(applicationContext)
 
             // Crea el input para referencia
-            val inputFeature0 = TensorBuffer.createFixedSize(intArrayOf(1, 224, 224, 3), DataType.FLOAT32)
+            val inputFeature0 =
+                TensorBuffer.createFixedSize(intArrayOf(1, 224, 224, 3), DataType.FLOAT32)
 
             // Crea un ByteBuffer con el tamaño adecuado para los datos de la imagen
             val byteBuffer = ByteBuffer.allocateDirect(4 * imageSize * imageSize * 3)
@@ -104,71 +115,114 @@ class Principal : AppCompatActivity() {
                     maxConfidence = confidence[i]
                     maxPos = i
                 }
-                Toast.makeText(this,"%"+maxConfidence,Toast.LENGTH_SHORT).show();
+                // Formatear maxConfidence como porcentaje con 2 decimales
+                val percentage = String.format(Locale.getDefault(), "%.2f%%", maxConfidence * 100)
+                Toast.makeText(this, percentage, Toast.LENGTH_SHORT).show()
+
             }
 
             // Define las clases posibles
             val classes = arrayOf("Ruda", "Hierbabuena", "Romero", "Vaporub")
-
             // Umbral de confianza mínima
             val confianzaMin = 0.95f // 95% de confianza
 
+
             if (maxConfidence < confianzaMin) {
                 // Si la confianza es menor que el umbral, mostramos un mensaje indicando que la planta no está en la base de datos
-                result.text = "Planta no reconocida"
+                CientificName.text = "Nombre no encontrado."
+                Name.text = "Planta no reconocida."
+                Description.text = "No tenemos información sobre esta planta."
                 propiedades.text = "No tenemos información sobre esta planta."
             } else {
 
-                // Muestra el nombre de la clase con mayor confianza en el TextView result
-                result.text = classes[maxPos]
+                //variable para inicializar el id del documento
+                val documentId = classes[maxPos]
 
-                //Compara la clase son mayor confianza para mostrar las propiedades en el textview de propiedades
-                if (classes[maxPos] == "Ruda") {
-                    // Muestra las propiedades de la planta detectada en el TextView properties
-                    propiedades.text =
-                        "La ${classes[maxPos]} una planta con propiedades medicinales conocidas por sus efectos" +
-                                " digestivos, antiespasmódicos y analgésicos. Se utiliza para tratar problemas gastrointestinales, " +
-                                "aliviar dolores menstruales y como tónico para el hígado.\nTambién tiene aplicaciones en la medicina" +
-                                " tradicional para combatir infecciones y parásitos, aunque su uso en grandes cantidades puede ser" +
-                                " tóxico."
-                } else if (classes[maxPos] == "Hierbabuena") {
-                    // Muestra las propiedades de la planta detectada en el TextView properties
-                    propiedades.text =
-                        "La ${classes[maxPos]} es una planta con propiedades digestivas, carminativas y " +
-                                "antiespasmódicas, que ayuda a aliviar problemas gastrointestinales como gases y cólicos.\nTambién" +
-                                " tiene propiedades antimicrobianas y antiinflamatorias, siendo útil en el tratamiento de resfriados" +
-                                " y dolores de cabeza. Su aroma refrescante la hace popular en infusiones y como complemento culinario."
-                } else if (classes[maxPos] == "Romero") {
-                    // Muestra las propiedades de la planta detectada en el TextView properties
-                    propiedades.text =
-                        "EL ${classes[maxPos]} es una planta con propiedades antioxidantes, antiinflamatorias y " +
-                                "digestivas. Se utiliza para mejorar la memoria, aliviar dolores musculares y mejorar la circulación" +
-                                " sanguínea.\nAdemás, tiene aplicaciones en el tratamiento de problemas gastrointestinales y como" +
-                                " estimulante para el crecimiento del cabello. Su aroma también la convierte en un popular" +
-                                " complemento culinario."
-                } else if (classes[maxPos] == "Vaporub") {
-                    // Muestra las propiedades de la planta detectada en el TextView properties
-                    propiedades.text =
-                        "La planta de ${classes[maxPos]} conocida también como \"Eucalyptus\" o \"Eucalipto\"," +
-                                " tiene propiedades expectorantes, antiinflamatorias y antimicrobianas.\nSe usa para aliviar la" +
-                                " congestión nasal, tratar resfriados y mejorar la respiración. Sus aceites esenciales son útiles" +
-                                " en vaporizaciones y ungüentos para calmar la tos y descongestionar las vías respiratorias."
-                }
+                // Consulta el nombre cientfico de la clase con mayor confianza en el TextView CientificName
+                db.collection("plants").document(documentId)
+                    .get()
+                    .addOnSuccessListener { document ->
+                        if (document != null && document.exists()) {
+                            //Obtiene el campo "Nombre cientifico"
+                            val nombreCientifico = document.getString("Nombre_Cientifico")
+                            //Asignar el valor en el texview
+                            CientificName.text = nombreCientifico
+                        } else {
+                            //si el no existe
+                            Log.d("Firestore", "No such document")
+                            CientificName.text = "Nombre no encontrado"
+                        }
 
-                // Configura un listener para el TextView result para abrir una búsqueda en Google de la planta detectada
-                result.setOnClickListener {
-                    //startActivity(Intent(Intent.ACTION_VIEW, Url.parse("https://www.google.com/search?q=${result.text}")))
-                }
+                    } .addOnFailureListener { exception ->
+                        // Si hubo un error al obtener el documento
+                        Log.d("Firestore", "Error al obtener el documento: ", exception)
+                        Name.text = "Error al obtener el nombre"
+                    }
 
-                // Cierra el modelo para liberar recursos
-                model.close()
+                //Muestra el nombre de la planta con mayor confianza
+                Name.text = classes[maxPos]
+
+                //Consulta para mostrar la descripcion de la planta
+                db.collection("plants").document(documentId)
+                    .get()
+                    .addOnSuccessListener { document->
+                        if(document!=null && document.exists()){
+                            //Obetener el campo Descripcion
+                            val PlantDesc = document.getString("Descripcion")
+                            //Asignar el valor en el textview
+                            Description.text =PlantDesc
+                        }else{
+                            Log.d("Firestore", "No such document")
+                            Description.text= "Informacion no encontrada"
+                        }
+                    }.addOnFailureListener { exception ->
+                        // Si hubo un error al obtener el documento
+                        Log.d("Firestore", "Error al obtener el documento: ", exception)
+                        Name.text = "Error al obtener la descripcion"
+                    }
+
+                //Consulta para mostrar las caractetisticas(propiedades de la planta)
+                db.collection("plants").document(documentId)
+                    .get()
+                    .addOnSuccessListener { document->
+                        if (document!=null && document.exists()){
+                            //Obtener el campo Caracteristicas
+                            val CaracPlant = document.getString("Caracteristas")
+
+                            // Formatear las características separadas por punto
+                            val formattedCaracPlant = CaracPlant?.split(".")
+                                ?.filter { it.isNotBlank() } // Filtra los elementos vacíos
+                                ?.joinToString("\n• ", prefix = "• ")
+
+                            // Mostrar las características en el TextView con formato
+                            propiedades.text = formattedCaracPlant
+                        }else{
+                            Log.d("Firestore", "No such document")
+                            Description.text = "Información no encontrada"
+                        }
+                    }
+                    .addOnFailureListener { exception ->
+                        // Si hubo un error al obtener el documento
+                        Log.d("Firestore", "Error al obtener el documento: ", exception)
+                        Name.text = "Error al obtener la información"
+                    }
+
+
+
             }
+
+
+            // Configura un listener para el TextView result para abrir una búsqueda en Google de la planta detectada
+            /*result.setOnClickListener {
+                    //startActivity(Intent(Intent.ACTION_VIEW, Url.parse("https://www.google.com/search?q=${result.text}")))
+                }*/
+
+            // Cierra el modelo para liberar recursos
+            model.close()
         } catch (e: IOException) {
             // Maneja la excepción en caso de error
             e.printStackTrace()
         }
-
-
     }
     //Crear Funcion que devuelve la planta clasificada
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
