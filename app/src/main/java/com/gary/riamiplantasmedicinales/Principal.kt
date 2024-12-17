@@ -29,12 +29,13 @@ class Principal : AppCompatActivity() {
 
     private val db = FirebaseFirestore.getInstance() //inicializar Firebase Firestore
     //variables de manera global
-    lateinit var CientificName: TextView
-    lateinit var Description: TextView
     lateinit var Name: TextView
+    lateinit var Genero: TextView
+    lateinit var Family: TextView
     lateinit var propiedades: TextView
     lateinit var imagen: ImageView
     lateinit var btnPicture: Button
+    lateinit var IdPlant : TextView
     var imageSize = 224
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,12 +48,13 @@ class Principal : AppCompatActivity() {
             insets
         }
         //relacionar las variables globales con los ids del xml
-        Description = findViewById(R.id.Description)
-        CientificName = findViewById(R.id.name)
-        Name = findViewById(R.id.CName)
+        Family = findViewById(R.id.Family)
+        Genero = findViewById(R.id.Genero)
+        Name = findViewById(R.id.name)
         propiedades = findViewById(R.id.Propieties)
         imagen = findViewById(R.id.imageView)
         btnPicture = findViewById(R.id.button)
+        IdPlant = findViewById(R.id.idPlant)
 
         //programar el boton
         btnPicture.setOnClickListener {
@@ -122,35 +124,39 @@ class Principal : AppCompatActivity() {
             }
 
             // Define las clases posibles
-            val classes = arrayOf("Ruda", "Hierbabuena", "Romero", "Vaporub")
+            val classes = arrayOf("Romero","Ruda","Sábila")
             // Umbral de confianza mínima
             val confianzaMin = 0.95f // 95% de confianza
 
 
             if (maxConfidence < confianzaMin) {
                 // Si la confianza es menor que el umbral, mostramos un mensaje indicando que la planta no está en la base de datos
-                CientificName.text = "Nombre no encontrado."
-                Name.text = "Planta no reconocida."
-                Description.text = "No tenemos información sobre esta planta."
-                propiedades.text = "No tenemos información sobre esta planta."
+                Family.text = " "
+                Name.text = "Planta no encontrada"
+                Family.text = " "
+                propiedades.text = " "
+                IdPlant.text = ""
             } else {
 
                 //variable para inicializar el id del documento
                 val documentId = classes[maxPos]
 
-                // Consulta el nombre cientfico de la clase con mayor confianza en el TextView CientificName
+                //Muestra el nombre de la planta con mayor confianza
+                Name.text = classes[maxPos]
+
+                //Consulta la familia a la que pertenece
                 db.collection("plants").document(documentId)
                     .get()
                     .addOnSuccessListener { document ->
                         if (document != null && document.exists()) {
                             //Obtiene el campo "Nombre cientifico"
-                            val nombreCientifico = document.getString("Nombre_Cientifico")
+                            val Familia = document.getString("Familia")
                             //Asignar el valor en el texview
-                            CientificName.text = nombreCientifico
+                            Family.text = Familia
                         } else {
                             //si el no existe
                             Log.d("Firestore", "No such document")
-                            CientificName.text = "Nombre no encontrado"
+                            Family.text = "Nombre no encontrado"
                         }
 
                     } .addOnFailureListener { exception ->
@@ -159,21 +165,19 @@ class Principal : AppCompatActivity() {
                         Name.text = "Error al obtener el nombre"
                     }
 
-                //Muestra el nombre de la planta con mayor confianza
-                Name.text = classes[maxPos]
 
-                //Consulta para mostrar la descripcion de la planta
+                //Consulta para mostrar el genero a l que pertenece
                 db.collection("plants").document(documentId)
                     .get()
                     .addOnSuccessListener { document->
                         if(document!=null && document.exists()){
                             //Obetener el campo Descripcion
-                            val PlantDesc = document.getString("Descripcion")
+                            val genero = document.getString("Genero y especie")
                             //Asignar el valor en el textview
-                            Description.text =PlantDesc
+                            Genero.text =genero
                         }else{
                             Log.d("Firestore", "No such document")
-                            Description.text= "Informacion no encontrada"
+                            Genero.text= "Informacion no encontrada"
                         }
                     }.addOnFailureListener { exception ->
                         // Si hubo un error al obtener el documento
@@ -187,18 +191,12 @@ class Principal : AppCompatActivity() {
                     .addOnSuccessListener { document->
                         if (document!=null && document.exists()){
                             //Obtener el campo Caracteristicas
-                            val CaracPlant = document.getString("Caracteristas")
-
-                            // Formatear las características separadas por punto
-                            val formattedCaracPlant = CaracPlant?.split(".")
-                                ?.filter { it.isNotBlank() } // Filtra los elementos vacíos
-                                ?.joinToString("\n• ", prefix = "• ")
-
+                            val CaracPlant = document.getString("Usos medicinales")
                             // Mostrar las características en el TextView con formato
-                            propiedades.text = formattedCaracPlant
+                            propiedades.text = CaracPlant
                         }else{
                             Log.d("Firestore", "No such document")
-                            Description.text = "Información no encontrada"
+                            propiedades.text = "Información no encontrada"
                         }
                     }
                     .addOnFailureListener { exception ->
@@ -206,11 +204,26 @@ class Principal : AppCompatActivity() {
                         Log.d("Firestore", "Error al obtener el documento: ", exception)
                         Name.text = "Error al obtener la información"
                     }
-
-
-
+                //Consulta el id de la planta
+                db.collection("plants").document(documentId)
+                    .get()
+                    .addOnSuccessListener { document ->
+                        if (document!=null && document.exists()){
+                            //Obtener el campo id
+                            val ID_Planta = document.getString("Id")
+                            //Mostrar el id de la planta en el texview asignado
+                            IdPlant.text = ID_Planta
+                        }else{
+                            Log.d("Firestore", "No such document")
+                            IdPlant.text = "Información no encontrada"
+                        }
+                    }
+                    .addOnFailureListener { exception ->
+                        // Si hubo un error al obtener el documento
+                        Log.d("Firestore", "Error al obtener el documento: ", exception)
+                        Name.text = "Error al obtener la información"
+                    }
             }
-
 
             // Configura un listener para el TextView result para abrir una búsqueda en Google de la planta detectada
             /*result.setOnClickListener {
