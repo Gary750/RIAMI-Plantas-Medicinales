@@ -118,8 +118,8 @@ class Principal : AppCompatActivity() {
                     maxPos = i
                 }
                 // Formatear maxConfidence como porcentaje con 2 decimales
-                val percentage = String.format(Locale.getDefault(), "%.2f%%", maxConfidence * 100)
-                Toast.makeText(this, percentage, Toast.LENGTH_SHORT).show()
+                //val percentage = String.format(Locale.getDefault(), "%.2f%% ", maxConfidence * 100)
+                //Toast.makeText(this, percentage, Toast.LENGTH_SHORT).show()
 
             }
 
@@ -131,11 +131,12 @@ class Principal : AppCompatActivity() {
 
             if (maxConfidence < confianzaMin) {
                 // Si la confianza es menor que el umbral, mostramos un mensaje indicando que la planta no está en la base de datos
-                Family.text = " "
-                Name.text = "Planta no encontrada"
+                Toast.makeText(this, "Planta no encontrada en la base de datos", Toast.LENGTH_SHORT).show()
+                Name.text = " "
                 Family.text = " "
                 propiedades.text = " "
                 IdPlant.text = ""
+                Genero.text = ""
             } else {
 
                 //variable para inicializar el id del documento
