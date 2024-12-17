@@ -1,5 +1,6 @@
 package com.gary.riamiplantasmedicinales
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
@@ -102,5 +103,11 @@ class Login : AppCompatActivity() {
             val intent = Intent(this, CrearCuenta::class.java)
             startActivity(intent) // Iniciar la actividad de creación de cuenta
         }
+    }
+
+    @SuppressLint("MissingSuperCall")//esto suprime una advertencia específica del lint
+    override fun onBackPressed() {
+        // Dejar vacío este método evita que el botón "Atrás" funcione
+        // No llamamos a super.onBackPressed() para bloquear la acción de regresar
     }
 }
