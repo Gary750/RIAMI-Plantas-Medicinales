@@ -1,8 +1,10 @@
 package com.gary.riamiplantasmedicinales
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.analytics.FirebaseAnalytics
 
@@ -32,5 +34,11 @@ class ActivitySplash : AppCompatActivity() {
         bundle.putString("message", "Integracion con FireBase Completa")
         // Registrar un evento de inicialización de pantalla con Firebase Analytics
         analytics.logEvent("InitScreen", bundle)
+    }
+
+    @SuppressLint("MissingSuperCall")//esto suprime una advertencia específica del lint
+    override fun onBackPressed() {
+        // Dejar vacío este método evita que el botón "Atrás" funcione
+        // No llamamos a super.onBackPressed() para bloquear la acción de regresar
     }
 }
