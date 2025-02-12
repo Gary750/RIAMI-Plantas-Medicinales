@@ -108,6 +108,7 @@
         android:text="ó"
         android:textSize="18sp"
         android:textStyle="bold"
+        android:textColor="@color/black"
         app:layout_constraintTop_toBottomOf="@id/continue_button"
         android:layout_marginTop="20dp"
         app:layout_constraintStart_toStartOf="parent"
