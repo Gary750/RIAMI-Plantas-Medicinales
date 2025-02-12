@@ -113,25 +113,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Botón Iniciar sesión con Google -->
-    <Button
-        android:id="@+id/google_login_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Iniciar sesión con Google"
-        android:drawableLeft="@drawable/google_178_svgrepo_com"
-        android:backgroundTint="#689F38"
-        android:textColor="@android:color/white"
-        app:layout_constraintTop_toBottomOf="@id/or_label"
-        android:layout_marginTop="20dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+
 
     <!-- Texto "No tienes cuenta?" y "Crear cuenta" -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/google_login_button"
+        app:layout_constraintTop_toBottomOf="@id/or_label"
         android:layout_marginTop="20dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -141,7 +129,7 @@
             android:id="@+id/no_account"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="No tienes cuenta?"
+            android:text="¿No tienes cuenta?"
             android:textColor="@color/black"
             android:textSize="14sp" />
 
