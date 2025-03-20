@@ -36,6 +36,7 @@ class Principal : AppCompatActivity() {
     private lateinit var imagen: ImageView
     private lateinit var btnPicture: Button
     private lateinit var IdPlant: TextView
+    private lateinit var btnSearch: ImageView
     private val imageSize = 224 // Tamaño de la imagen para el modelo
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,14 +51,15 @@ class Principal : AppCompatActivity() {
             insets
         }
 
-        // Inicialización de vistas usando el bloque `apply` para mejor legibilidad
-        findViewById<TextView>(R.id.name).apply { Name = this }
-        findViewById<TextView>(R.id.Genero).apply { Genero = this }
-        findViewById<TextView>(R.id.Family).apply { Family = this }
-        findViewById<TextView>(R.id.Propieties).apply { propiedades = this }
-        findViewById<ImageView>(R.id.imageView).apply { imagen = this }
-        findViewById<Button>(R.id.button).apply { btnPicture = this }
-        findViewById<TextView>(R.id.idPlant).apply { IdPlant = this }
+        // Inicialización de vistas
+        Name = findViewById(R.id.name)
+        Genero = findViewById(R.id.Genero)
+        Family = findViewById(R.id.Family)
+        propiedades = findViewById(R.id.Propieties)
+        imagen = findViewById(R.id.imageView)
+        btnPicture = findViewById(R.id.button)
+        IdPlant = findViewById(R.id.idPlant)
+        btnSearch = findViewById(R.id.search_icon)
 
         // Verificación de permisos de la cámara
         if (checkSelfPermission(android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
@@ -73,25 +75,27 @@ class Principal : AppCompatActivity() {
                 Toast.makeText(this, "Permiso de cámara denegado", Toast.LENGTH_SHORT).show()
             }
         }
+
+        // Configuración del botón de búsqueda para abrir la actividad ConsultarActivity
+        btnSearch.setOnClickListener {
+            val intent = Intent(this, ConsultarActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     // Función para clasificar la imagen utilizando el modelo de TensorFlow Lite
     private fun classifyImage(image: Bitmap) {
         try {
-            // Inicialización del modelo de detección de plantas
             val model = PlantDetection.newInstance(applicationContext)
 
-            // Creación del buffer de entrada para el modelo
             val inputFeature0 = TensorBuffer.createFixedSize(intArrayOf(1, 224, 224, 3), DataType.FLOAT32)
             val byteBuffer = ByteBuffer.allocateDirect(4 * imageSize * imageSize * 3).apply {
                 order(ByteOrder.nativeOrder())
             }
 
-            // Conversión de la imagen a un array de píxeles
             val intValues = IntArray(imageSize * imageSize)
             image.getPixels(intValues, 0, image.width, 0, 0, image.width, image.height)
 
-            // Extracción de los valores R, G, B y carga en el ByteBuffer
             var pixel = 0
             for (i in 0 until imageSize) {
                 for (j in 0 until imageSize) {
@@ -102,15 +106,12 @@ class Principal : AppCompatActivity() {
                 }
             }
 
-            // Carga del ByteBuffer en el modelo
             inputFeature0.loadBuffer(byteBuffer)
 
-            // Ejecución de la inferencia del modelo
             val outputs = model.process(inputFeature0)
             val outputFeature0 = outputs.outputFeature0AsTensorBuffer
             val confidence = outputFeature0.floatArray
 
-            // Encontrar la clase con la mayor confianza
             var maxPos = 0
             var maxConfidence = 0f
             for (i in confidence.indices) {
@@ -120,14 +121,10 @@ class Principal : AppCompatActivity() {
                 }
             }
 
-            // Definición de las clases y umbral de confianza
             val classes = arrayOf("Vaporub", "Ajenjo", "Ruda")
-            val confianzaMin = 0.97f // 95% de confianza
-
-            //Toast.makeText(this,"Palnta: " + classes[maxPos] +", Confianza $maxConfidence",Toast.LENGTH_SHORT).show()
+            val confianzaMin = 0.97f
 
             if (maxConfidence < confianzaMin) {
-                // Si la confianza es menor que el umbral, mostrar mensaje de error
                 Toast.makeText(this, "Planta no encontrada en la base de datos", Toast.LENGTH_SHORT).show()
                 Name.text = ""
                 Family.text = ""
@@ -135,11 +132,9 @@ class Principal : AppCompatActivity() {
                 IdPlant.text = ""
                 Genero.text = ""
             } else {
-                // Obtener el ID del documento de Firestore
                 val documentId = classes[maxPos]
                 Name.text = documentId
 
-                // Consulta a Firestore para obtener los detalles de la planta
                 db.collection("plants").document(documentId).get()
                     .addOnSuccessListener { document ->
                         if (document != null && document.exists()) {
@@ -160,8 +155,6 @@ class Principal : AppCompatActivity() {
                         Name.text = "Error al obtener la información"
                     }
             }
-
-            // Cerrar el modelo para liberar recursos
             model.close()
         } catch (e: IOException) {
             e.printStackTrace()
