@@ -50,7 +50,6 @@
             android:text="Familia"
             android:textSize="16sp"
             android:textColor="@color/black"
-            android:textStyle="italic"
             android:paddingBottom="4dp" />
 
         <!-- Género y especie -->
