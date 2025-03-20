@@ -1,0 +1,77 @@
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp"
+    android:background="@color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="@color/white">
+
+        <!-- Nombre de la planta -->
+        <TextView
+            android:id="@+id/nombrePlanta"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Nombre de la planta"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:gravity="center"
+            android:paddingBottom="4dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#7BC34C"
+            android:layout_marginBottom="8dp" />
+
+        <!-- ID adicional -->
+        <TextView
+            android:id="@+id/idPlanta"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ID"
+            android:textSize="14sp"
+            android:textColor="@color/black"
+            android:paddingBottom="4dp" />
+-
+        <!-- Familia -->
+        <TextView
+            android:id="@+id/familiaPlanta"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Familia"
+            android:textSize="16sp"
+            android:textColor="@color/black"
+            android:textStyle="italic"
+            android:paddingBottom="4dp" />
+
+        <!-- Género y especie -->
+        <TextView
+            android:id="@+id/generoPlanta"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Género y especie"
+            android:textSize="16sp"
+            android:textColor="@color/black"
+            android:paddingBottom="4dp" />
+
+        <!-- Usos medicinales -->
+        <TextView
+            android:id="@+id/usosPlanta"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Usos medicinales"
+            android:textSize="16sp"
+            android:textColor="@color/black"
+            android:paddingBottom="8dp" />
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
